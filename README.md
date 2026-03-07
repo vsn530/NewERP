@@ -80,7 +80,10 @@ npm run dev
 # App runs on http://localhost:5173
 ```
 
+### 4. Admin Login
+You can log in to the admin dashboard using the following default credentials (make sure you have seeded or created the user in your database):
 
+- **Email:** `admin@minierp.com` 
+- **Password:** `adminpassword123`
 
-
-
+Navigate to `http://localhost:5173/login` in your browser to sign in.
