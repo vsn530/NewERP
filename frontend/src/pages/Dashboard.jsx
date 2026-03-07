@@ -14,11 +14,19 @@ export default function Dashboard() {
     useEffect(() => {
         if (isAdmin) {
             api.get('/reports/summary')
-                .then(res => setSummary(res.data))
+                .then(res => {
+                    if (typeof res.data === 'object' && res.data !== null && 'totalRevenue' in res.data) {
+                        setSummary(res.data);
+                    }
+                })
                 .catch(() => { });
 
             api.get('/users')
-                .then(res => setStaffList(res.data.filter(u => u.role === 'STAFF')))
+                .then(res => {
+                    if (Array.isArray(res.data)) {
+                        setStaffList(res.data.filter(u => u.role === 'STAFF'));
+                    }
+                })
                 .catch(() => { });
         }
     }, [isAdmin]);
