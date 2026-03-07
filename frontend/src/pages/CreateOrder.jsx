@@ -41,7 +41,7 @@ export default function CreateOrder() {
         try {
             await api.post('/orders', {
                 customerName,
-                items: validItems.map(i => ({ productId: parseInt(i.productId), quantity: i.quantity })),
+                items: validItems.map(i => ({ productId: parseInt(i.productId, 10), quantity: parseInt(i.quantity, 10) })),
             });
             setSuccess('Order created successfully! Redirecting...');
             setTimeout(() => navigate('/orders'), 1500);

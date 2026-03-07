@@ -23,28 +23,35 @@ async function createOrder(customerName, items, createdBy) {
         const orderItemsData = [];
 
         for (const item of items) {
-            const product = await tx.product.findUnique({ where: { id: item.productId } });
+            const productId = parseInt(item.productId, 10);
+            const quantity = parseInt(item.quantity, 10);
+
+            if (isNaN(productId) || isNaN(quantity) || quantity <= 0) {
+                throw Object.assign(new Error(`Invalid product ID or quantity.`), { status: 400 });
+            }
+
+            const product = await tx.product.findUnique({ where: { id: productId } });
 
             // 5. If insufficient stock, throw (transaction will rollback)
-            if (product.stock_quantity < item.quantity) {
+            if (product.stock_quantity < quantity) {
                 throw Object.assign(
-                    new Error(`Insufficient stock for "${product.name}". Available: ${product.stock_quantity}, Requested: ${item.quantity}`),
+                    new Error(`Insufficient stock for "${product.name}". Available: ${product.stock_quantity}, Requested: ${quantity}`),
                     { status: 400 }
                 );
             }
 
             // 6a. Deduct stock
             await tx.product.update({
-                where: { id: item.productId },
-                data: { stock_quantity: { decrement: item.quantity } },
+                where: { id: productId },
+                data: { stock_quantity: { decrement: quantity } },
             });
 
             const priceAtPurchase = product.price;
-            totalAmount += priceAtPurchase * item.quantity;
+            totalAmount += priceAtPurchase * quantity;
 
             orderItemsData.push({
-                product_id: item.productId,
-                quantity: item.quantity,
+                product_id: productId,
+                quantity: quantity,
                 price_at_purchase: priceAtPurchase,
             });
         }
