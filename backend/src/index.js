@@ -14,7 +14,19 @@ const reportRoutes = require('./routes/reports');
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    process.env.FRONTEND_URL, // production Render URL
+    'http://localhost:5173',   // local dev
+].filter(Boolean);
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    credentials: true,
+}));
 app.use(express.json());
 
 // Routes
