@@ -23,7 +23,7 @@ app.use(cors({
         // Allow requests with no origin (e.g. mobile apps, curl, Postman)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS: origin ${origin} not allowed`));
+        callback(null, false); // changed from throwing new Error to prevent HTML 500s
     },
     credentials: true,
 }));
