@@ -4,21 +4,29 @@ import { useAuth } from '../AuthContext';
 import api from '../api';
 
 export default function Login() {
-    const { login, mustChangePassword } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [mustChangePasswordState, setMustChangePasswordState] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
         try {
-            await login(email, password);
-            navigate('/dashboard');
+            const res = await api.post('/auth/login', { email, password });
+
+            if (res.data.must_change_password) {
+                login(res.data.user, res.data.token);
+                setMustChangePasswordState(true);
+            } else {
+                login(res.data.user, res.data.token);
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
         } finally {
@@ -47,15 +55,15 @@ export default function Login() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '12px', background: 'var(--primary)', color: 'white', marginBottom: '1rem' }}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
                     </div>
-                    <h2>{mustChangePassword ? 'Change Password' : 'Welcome Back'}</h2>
+                    <h2>{mustChangePasswordState ? 'Change Password' : 'Welcome Back'}</h2>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                        {mustChangePassword ? 'Please secure your account with a new password' : 'Sign in to access your ERP dashboard'}
+                        {mustChangePasswordState ? 'Please secure your account with a new password' : 'Sign in to access your ERP dashboard'}
                     </p>
                 </div>
 
                 {error && <div className="error-text">{error}</div>}
 
-                {mustChangePassword ? (
+                {mustChangePasswordState ? (
                     <form onSubmit={handleChangePassword}>
                         <div style={{ marginBottom: '1.5rem' }}>
                             <label>New Password</label>
