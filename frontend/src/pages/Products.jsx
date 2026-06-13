@@ -11,12 +11,10 @@ export default function Products() {
     const [loading, setLoading] = useState(false);
 
     const fetchProducts = () => {
-        api.get('/products').then(res => setProducts(res.data)).catch(() => { });
+        api.get('/products').then(res => setProducts(res.data)).catch(() => {});
     };
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+    useEffect(() => { fetchProducts(); }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -41,6 +39,7 @@ export default function Products() {
     const handleEdit = (p) => {
         setEditingId(p.id);
         setForm({ name: p.name, price: p.price, stock_quantity: p.stock_quantity });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDelete = async (id) => {
@@ -59,28 +58,52 @@ export default function Products() {
     };
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-                <div>
-                    <h1 style={{ marginBottom: '0.5rem' }}>Product Catalog</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Manage your inventory and pricing here</p>
+        <div style={{ maxWidth: '1100px' }}>
+            {/* Header */}
+            <div className="page-header">
+                <div className="page-header-left">
+                    <h1>Products</h1>
+                    <p>Manage your inventory and pricing</p>
                 </div>
+                <span className="badge badge-muted" style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}>
+                    {products.length} item{products.length !== 1 ? 's' : ''}
+                </span>
             </div>
 
-            {error && <div className="error-text">{error}</div>}
+            {error && (
+                <div className="alert alert-error">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {error}
+                </div>
+            )}
 
+            {/* Add / Edit form */}
             {isAdmin && (
-                <div className="card" style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {editingId ? (
-                            <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg> Edit Product</>
-                        ) : (
-                            <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> Add New Product</>
-                        )}
-                    </h3>
+                <div className="card" style={{ marginBottom: '1.5rem' }}>
+                    <div className="card-header" style={{ marginBottom: '1.25rem' }}>
+                        <div className="card-title">
+                            {editingId ? (
+                                <>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit Product
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
+                                    Add Product
+                                </>
+                            )}
+                        </div>
+                    </div>
 
-                    <form onSubmit={handleSubmit} className="flex-row" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                        <div style={{ flex: '1 1 250px' }}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                        <div style={{ flex: '1 1 220px' }}>
                             <label>Product Name</label>
                             <input
                                 placeholder="e.g. Mechanical Keyboard"
@@ -89,7 +112,7 @@ export default function Products() {
                                 required
                             />
                         </div>
-                        <div style={{ flex: '1 1 120px' }}>
+                        <div style={{ flex: '0 1 140px' }}>
                             <label>Price (₹)</label>
                             <input
                                 type="number"
@@ -100,7 +123,7 @@ export default function Products() {
                                 step="0.01"
                             />
                         </div>
-                        <div style={{ flex: '1 1 120px' }}>
+                        <div style={{ flex: '0 1 120px' }}>
                             <label>Stock Qty</label>
                             <input
                                 type="number"
@@ -112,18 +135,17 @@ export default function Products() {
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button type="submit" disabled={loading}>
-                                {editingId ? 'Save Changes' : 'Add Product'}
+                                {editingId ? 'Save' : 'Add Product'}
                             </button>
                             {editingId && (
-                                <button type="button" onClick={handleCancel} className="outline">
-                                    Cancel
-                                </button>
+                                <button type="button" onClick={handleCancel} className="outline">Cancel</button>
                             )}
                         </div>
                     </form>
                 </div>
             )}
 
+            {/* Table */}
             <div className="table-container">
                 <table>
                     <thead>
@@ -132,32 +154,53 @@ export default function Products() {
                             <th>Product Name</th>
                             <th>Price</th>
                             <th>Stock</th>
-                            <th>Date Added</th>
+                            <th>Added</th>
                             {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
                         {products.length === 0 ? (
-                            <tr><td colSpan={isAdmin ? 6 : 5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 1rem' }}>No products found in the catalog.</td></tr>
+                            <tr>
+                                <td colSpan={isAdmin ? 6 : 5}>
+                                    <div className="empty-state">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+                                        </svg>
+                                        <p>No products in catalog yet</p>
+                                    </div>
+                                </td>
+                            </tr>
                         ) : (
                             products.map(p => (
                                 <tr key={p.id}>
-                                    <td style={{ color: 'var(--text-muted)' }}>#{p.id}</td>
-                                    <td style={{ fontWeight: 500 }}>{p.name}</td>
-                                    <td>₹{p.price.toFixed(2)}</td>
+                                    <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>#{p.id}</td>
+                                    <td className="td-main">{p.name}</td>
+                                    <td style={{ fontWeight: 500 }}>₹{Number(p.price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                     <td>
-                                        <span className="badge" style={{
-                                            background: p.stock_quantity > 10 ? '#dcfce7' : '#fee2e2',
-                                            color: p.stock_quantity > 10 ? '#166534' : '#991b1b'
-                                        }}>
-                                            {p.stock_quantity} in stock
+                                        <span className={`badge ${p.stock_quantity > 10 ? 'badge-success' : p.stock_quantity > 0 ? 'badge-warning' : 'badge-danger'}`}>
+                                            {p.stock_quantity > 0 ? `${p.stock_quantity} in stock` : 'Out of stock'}
                                         </span>
                                     </td>
-                                    <td style={{ color: 'var(--text-muted)' }}>{new Date(p.created_at).toLocaleDateString()}</td>
+                                    <td style={{ color: 'var(--text-muted)' }}>
+                                        {new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                    </td>
                                     {isAdmin && (
                                         <td style={{ textAlign: 'right' }}>
-                                            <button onClick={() => handleEdit(p)} className="outline" style={{ padding: '0.25rem 0.5rem', marginRight: '0.5rem', fontSize: '0.75rem' }}>Edit</button>
-                                            <button onClick={() => handleDelete(p.id)} className="danger" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>Delete</button>
+                                            <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                                <button onClick={() => handleEdit(p)} className="ghost" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem' }}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                    </svg>
+                                                    Edit
+                                                </button>
+                                                <button onClick={() => handleDelete(p.id)} className="ghost" style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', color: 'var(--danger)' }}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     )}
                                 </tr>
